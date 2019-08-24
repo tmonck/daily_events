@@ -5,6 +5,7 @@ import logging
 import asyncio
 import aiohttp
 import async_timeout
+import json
 from urllib.parse import urlparse
 
 
@@ -68,6 +69,7 @@ async def async_setup(hass, config):
                             ssl=not isgoodipv4(urlparse(hassio_url).netloc)
                         )
                     res = await resp.json()
+                    _LOGGER.info(res)
                     if len(res) > 0:
                         hasEvents = True
                         _LOGGER.info("received {}".format(len(res)))
