@@ -18,12 +18,14 @@ import voluptuous as vol
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = 'daily_events'
-DEFAULT_NUM = 0
+ATTR_NAME = 'num_of_days'
+DEFAULT_NUM = 1
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_TOKEN): cv.string,
+        vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int
     }),
 }, extra=vol.ALLOW_EXTRA)
 
@@ -33,6 +35,7 @@ async def async_setup(hass, config):
     hassio_url = '{}/api/'.format(conf.get(CONF_HOST))
     auth_token = conf.get(CONF_TOKEN)
     headers = {'authorization': "Bearer {}".format(auth_token)}
+    num_of_days = conf.get(ATTR_NAME, DEFAULT_NUM)
     hasEvents = False
 
     async def async_get_calendars():
@@ -48,7 +51,7 @@ async def async_setup(hass, config):
                 _LOGGER.error("Client error on calling get calendars", exc_info=True)
                 await session.close()
             except asyncio.TimeoutError:
-                _LOGGER.error("Client timeout error on get snapshots", exc_info=True)
+                _LOGGER.error("Client timeout error on get calendars", exc_info=True)
                 await session.close()
             except Exception: 
                 _LOGGER.error("Unknown exception thrown", exc_info=True)
@@ -58,7 +61,7 @@ async def async_setup(hass, config):
         hasEvents = False
         notificationMessage = ''
         todayStart = datetime.combine(date.today(), time())
-        endDateTime = todayStart + timedelta(days=1)
+        endDateTime = todayStart + timedelta(days=num_of_days)
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
                 _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
@@ -92,13 +95,13 @@ async def async_setup(hass, config):
                     
                     await session.close()
                 except aiohttp.ClientError:
-                    _LOGGER.error("Client error on calling delete snapshot", exc_info=True)
+                    _LOGGER.error("Client error on calling get events for calendar", exc_info=True)
                     await session.close()
                 except asyncio.TimeoutError:
-                    _LOGGER.error("Client timeout error on delete snapshot", exc_info=True)
+                    _LOGGER.error("Client timeout error on get events for calendar", exc_info=True)
                     await session.close()
                 except Exception: 
-                    _LOGGER.error("Unknown exception thrown on calling delete snapshot", exc_info=True)
+                    _LOGGER.error("Unknown exception thrown on calling get events for calendar", exc_info=True)
                     await session.close()
         if hasEvents:
             return notificationMessage

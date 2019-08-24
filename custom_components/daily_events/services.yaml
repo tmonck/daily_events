@@ -1,5 +1,6 @@
 notify:
-  description: Cleans up the snapshots taken by home assistant
-    number_of_snapshots_to_keep:
-      description: Number of snapshots you wish to keep.
+  description: Sends html5 notification with the events for all of your calendars with date range of today until the number of days you wish to see.
+  fields:
+    num_of_days:
+      description: Number of days you wish to see events for.
       example: 3
