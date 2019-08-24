@@ -28,10 +28,6 @@ DEFAULT_TIME_FORMAT = "%I:%M %p"
 DEFAULT_NUM = 1
 DEFAULT_NOTIFY_SERVICES = ['html5']
 
-_EXCLUDED_CALENDARS_SCHEMA = vol.Schema({
-    vol.Required(CONF_ENTITY_ID): cv.entity_id
-})
-
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Required(CONF_HOST): cv.string,
@@ -39,7 +35,7 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int,
         vol.Optional(ATTR_DATE_FORMAT, default=DEFAULT_DATE_FORMAT): cv.string,
         vol.Optional(ATTR_TIME_FORMAT, default=DEFAULT_TIME_FORMAT): cv.string,
-        vol.Optional(ATTR_EXCLUDED_CALS, default=[]): [_EXCLUDED_CALENDARS_SCHEMA],
+        vol.Optional(ATTR_EXCLUDED_CALS, default=[]): [cv.entity_id],
         vol.Optional(ATTR_NOTIFY_SERVICES, default=DEFAULT_NOTIFY_SERVICES): [cv.string],
     }),
 }, extra=vol.ALLOW_EXTRA)
@@ -161,6 +157,7 @@ async def async_setup(hass, config):
         _LOGGER.info('Calendars: %s', calendars) 
         # remove holidays calendar
         for calendar in calendars:
+            _LOGGER.info("{}".format(excluded_calendars))
             if calendar['entity_id'] in excluded_calendars:
                 calendars.remove(calendar)
         
