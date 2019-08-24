@@ -58,7 +58,7 @@ async def async_setup(hass, config):
         hasEvents = False
         notificationMessage = ''
         todayStart = datetime.combine(date.today(), time())
-        endDateTime = todayStart + timedelta(days=30)
+        endDateTime = todayStart + timedelta(days=1)
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
                 _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
@@ -82,12 +82,12 @@ async def async_setup(hass, config):
                         notificationMessage += "{}:\n".format(calendar['name'])
                         for item in res:
                             if 'dateTime' in item['start'].keys():
-                                eventStartDateTime = parse(item['start']['dateTime'])
-                                strEventStartTime = eventStartDateTime.strftime("%I:%M %p")
-                                notificationMessage += "- {} at {}\n".format(item['summary'], strEventStartTime)
+                                notificationMessage += "- {} at {}\n".format(
+                                    item['summary'],
+                                    parse(item['start']['dateTime']).strftime("%I:%M %p")
+                                )
                             else:
-                                eventDate = parse(item['start']['date'])
-                                notificationMessage += "- {} on {}\n".format(item['summary'], eventDate.strftime("%a %b %d %Y"))
+                                notificationMessage += "- {}\n".format(item['summary'])
                     _LOGGER.debug("current notificationMessage {}".format(notificationMessage))
                     
                     await session.close()
@@ -123,6 +123,7 @@ async def async_setup(hass, config):
         _LOGGER.info('Calendars: %s', calendars) 
         notificationMessage = await async_get_events(calendars)
         _LOGGER.info("Message to send: {}".format(notificationMessage))
+        hass.services.call('notify', 'html5', {"message": notificationMessage})
 
     hass.services.async_register(DOMAIN, 'notify', async_handle_notify)
 
