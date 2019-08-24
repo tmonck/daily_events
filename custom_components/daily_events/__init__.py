@@ -62,7 +62,7 @@ async def async_setup(hass, config):
                 # call hassio API deletion
                 try:
                     with async_timeout.timeout(10, loop=hass.loop):
-                        resp = await session.post(
+                        resp = await session.get(
                             hassio_url + 'calendars/' + calendar['entity_id'] + "?start=2019-08-23T00:00:00Z&end=2019-09-22T00:00:00Z",
                             headers=headers,
                             ssl=not isgoodipv4(urlparse(hassio_url).netloc)
