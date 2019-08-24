@@ -34,7 +34,8 @@ async def async_setup(hass, config):
 
     async def async_get_calendars():
         _LOGGER.info('Calling get calendars')
-        _LOGGER.info("{}/calendars".format(hassio_url))
+        tempUrl = "{}/calendars".format(hassio_url)
+        _LOGGER.info(tempUrl)
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
                 with async_timeout.timeout(10, loop=hass.loop):
@@ -101,8 +102,9 @@ async def async_setup(hass, config):
         calendars = await async_get_calendars()
         _LOGGER.info('Calendars: %s', calendars) 
         # remove holidays calendar
-        calendars.remove()
-        _LOGGER.info('Calendars: %s', calendars) 
+        # if calendars != None:
+        #     calendars.remove()
+        # _LOGGER.info('Calendars: %s', calendars) 
         notificationMessage = await async_get_events(calendars)
         _LOGGER.info("Message to send: {}".format(notificationMessage))
 
