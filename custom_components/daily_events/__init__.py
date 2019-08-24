@@ -58,7 +58,7 @@ async def async_setup(hass, config):
         notificationMessage = ''
         todayStart = datetime.combine(date.today(), time())
         start = todayStart.isoformat()
-        endDateTime = start + timedelta(days=30)
+        endDateTime = todayStart + timedelta(days=30)
         end = endDateTime.isoformat()
         
         for calendar in calendars:
