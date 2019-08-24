@@ -11,7 +11,7 @@ from datetime import datetime, date, time, timedelta
 from dateutil.parser import parse
 
 
-from homeassistant.const import (CONF_HOST, CONF_TOKEN)
+from homeassistant.const import (CONF_HOST, CONF_TOKEN, CONF_ENTITY_ID)
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
@@ -21,9 +21,16 @@ DOMAIN = 'daily_events'
 ATTR_NAME = 'num_of_days'
 ATTR_DATE_FORMAT = 'date_output_format'
 ATTR_TIME_FORMAT = 'time_output_format'
+ATTR_EXCLUDED_CALS = 'excluded_calendars'
+ATTR_NOTIFY_SERVICES = 'notify_services'
 DEFAULT_DATE_FORMAT = "%a, %b %d %Y"
 DEFAULT_TIME_FORMAT = "%I:%M %p"
 DEFAULT_NUM = 1
+DEFAULT_NOTIFY_SERVICES = ['html5']
+
+_EXCLUDED_CALENDARS_SCHEMA = vol.Schema({
+    vol.Required(CONF_ENTITY_ID): cv.entity_id
+})
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
@@ -32,6 +39,8 @@ CONFIG_SCHEMA = vol.Schema({
         vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int,
         vol.Optional(ATTR_DATE_FORMAT, default=DEFAULT_DATE_FORMAT): cv.string,
         vol.Optional(ATTR_TIME_FORMAT, default=DEFAULT_TIME_FORMAT): cv.string,
+        vol.Optional(ATTR_EXCLUDED_CALS, default=[]): [_EXCLUDED_CALENDARS_SCHEMA],
+        vol.Optional(ATTR_NOTIFY_SERVICES, default=DEFAULT_NOTIFY_SERVICES): [cv.string],
     }),
 }, extra=vol.ALLOW_EXTRA)
 
@@ -44,6 +53,8 @@ async def async_setup(hass, config):
     num_of_days = conf.get(ATTR_NAME, DEFAULT_NUM)
     date_format = conf.get(ATTR_DATE_FORMAT, DEFAULT_DATE_FORMAT)
     time_format = conf.get(ATTR_TIME_FORMAT, DEFAULT_TIME_FORMAT)
+    excluded_calendars = conf.get(ATTR_EXCLUDED_CALS, [])
+    notify_services_to_call = conf.get(ATTR_NOTIFY_SERVICES, DEFAULT_NOTIFY_SERVICES)
     hasEvents = False
 
     async def async_get_calendars():
@@ -141,11 +152,16 @@ async def async_setup(hass, config):
     async def async_handle_notify(call):
         # Allow the service call override the configuration.
         days_to_add = call.data.get(ATTR_NAME, num_of_days)
+        
+        # Set days to add to 1 if days_to_add is 0
+        if days_to_add == 0:
+            days_to_add = DEFAULT_NUM
+        
         calendars = await async_get_calendars()
         _LOGGER.info('Calendars: %s', calendars) 
         # remove holidays calendar
         for calendar in calendars:
-            if calendar['entity_id'] == 'calendar.holidays_in_united_states':
+            if calendar['entity_id'] in excluded_calendars:
                 calendars.remove(calendar)
         
         _LOGGER.info('Calendars: %s', calendars) 
@@ -153,8 +169,10 @@ async def async_setup(hass, config):
         notificationMessage = await async_get_events(calendars, days_to_add)
         _LOGGER.info("Message to send: {}".format(notificationMessage))
 
-        await hass.services.async_call('notify', 'html5', {"message": notificationMessage})
-        _LOGGER.info("Notify was called")
+        for service in notify_services_to_call:
+            await hass.services.async_call('notify', service, {"message": notificationMessage})
+            _LOGGER.info("notify.{} was called".format(service))
+        _LOGGER.info("notify calls completed")
 
     hass.services.async_register(DOMAIN, 'notify', async_handle_notify)
 
