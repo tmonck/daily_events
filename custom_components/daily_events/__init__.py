@@ -121,8 +121,10 @@ async def async_setup(hass, config):
             if calendar['entity_id'] == 'calendar.holidays_in_united_states':
                 calendars.remove(calendar)
         _LOGGER.info('Calendars: %s', calendars) 
+        
         notificationMessage = await async_get_events(calendars)
         _LOGGER.info("Message to send: {}".format(notificationMessage))
+
         await hass.services.async_call('notify', 'html5', {"message": notificationMessage})
         _LOGGER.info("Notify was called")
 
