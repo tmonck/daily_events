@@ -68,7 +68,6 @@ async def async_setup(hass, config):
                             ssl=not isgoodipv4(urlparse(hassio_url).netloc)
                         )
                     res = await resp.json()
-                    await session.close()
                     if len(res) > 0:
                         hasEvents = True
                         _LOGGER.info("received {}".format(len(res)))
@@ -76,6 +75,8 @@ async def async_setup(hass, config):
                         for item in res:
                             notificationMessage += "- {} at {}\n".format(item['summary'], item['start']['dateTime'])
                     _LOGGER.debug("current notificationMessage {}".format(notificationMessage))
+                    
+                    await session.close()
                 except aiohttp.ClientError:
                     _LOGGER.error("Client error on calling delete snapshot", exc_info=True)
                     await session.close()
