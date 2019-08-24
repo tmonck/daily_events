@@ -8,6 +8,7 @@ import async_timeout
 import json
 from urllib.parse import urlparse
 from datetime import datetime, date, time, timedelta
+from dateutil.parser import parse
 
 
 from homeassistant.const import (CONF_HOST, CONF_TOKEN)
@@ -57,9 +58,7 @@ async def async_setup(hass, config):
         hasEvents = False
         notificationMessage = ''
         todayStart = datetime.combine(date.today(), time())
-        start = todayStart.isoformat()
         endDateTime = todayStart + timedelta(days=30)
-        end = endDateTime.isoformat()
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
                 _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
@@ -67,7 +66,11 @@ async def async_setup(hass, config):
                 try:
                     with async_timeout.timeout(10, loop=hass.loop):
                         resp = await session.get(
-                            "{}calendars/{}?start={}Z&end={}Z".format(hassio_url, calendar['entity_id'], start, end),
+                            "{}calendars/{}?start={}Z&end={}Z".format(
+                                hassio_url, calendar['entity_id'],
+                                todayStart.isoformat(),
+                                endDateTime.isoformat()
+                            ),
                             headers=headers,
                             ssl=not isgoodipv4(urlparse(hassio_url).netloc)
                         )
@@ -78,7 +81,13 @@ async def async_setup(hass, config):
                         _LOGGER.info("received {}".format(len(res)))
                         notificationMessage += "{}:\n".format(calendar['name'])
                         for item in res:
-                            notificationMessage += "- {} at {}\n".format(item['summary'], item['start']['dateTime'])
+                            if 'dateTime' in item['start'].keys():
+                                eventStartDateTime = parse(item['start']['dateTime'])
+                                strEventStartTime = eventStartDateTime.strftime("%I:%M %p")
+                                notificationMessage += "- {} at {}\n".format(item['summary'], strEventStartTime)
+                            else:
+                                eventDate = parse(item['start']['date'])
+                                notificationMessage += "- {} on {}\n".format(item['summary'], eventDate.strftime("%a %b %d %Y"))
                     _LOGGER.debug("current notificationMessage {}".format(notificationMessage))
                     
                     await session.close()
