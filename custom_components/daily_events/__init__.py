@@ -69,9 +69,9 @@ async def async_setup(hass, config):
                         )
                     res = await resp.json()
                     await session.close()
-                    if res.len > 0:
+                    if len(res) > 0:
                         hasEvents = True
-                        _LOGGER.info("received {}".format(res.len))
+                        _LOGGER.info("received {}".format(len(res)))
                         notificationMessage += "{}\n".format(calendar['entity_id'])
                         for item in res:
                             notificationMessage += "- {} at {}\n".format(item['summary'], item['start']['dateTime'])
