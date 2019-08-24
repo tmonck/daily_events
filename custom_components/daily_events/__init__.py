@@ -7,6 +7,7 @@ import aiohttp
 import async_timeout
 import json
 from urllib.parse import urlparse
+from datetime import datetime, date, time, timedelta
 
 
 from homeassistant.const import (CONF_HOST, CONF_TOKEN)
@@ -35,8 +36,6 @@ async def async_setup(hass, config):
 
     async def async_get_calendars():
         _LOGGER.info('Calling get calendars')
-        tempUrl = "{}/calendars".format(hassio_url)
-        _LOGGER.info(tempUrl)
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
                 with async_timeout.timeout(10, loop=hass.loop):
@@ -57,6 +56,10 @@ async def async_setup(hass, config):
     async def async_get_events(calendars):
         hasEvents = False
         notificationMessage = ''
+        todayStart = datetime.combine(date.today(), time())
+        start = todayStart.isoformat()
+        end = start + timedelta(days=30)
+        
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
                 _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
@@ -64,7 +67,7 @@ async def async_setup(hass, config):
                 try:
                     with async_timeout.timeout(10, loop=hass.loop):
                         resp = await session.get(
-                            hassio_url + 'calendars/' + calendar['entity_id'] + "?start=2019-08-23T00:00:00Z&end=2019-09-22T00:00:00Z",
+                            "{}calendars/{}?start={}}Z&end={}Z".format(hassio_url, calendar['entity_id'], start, end),
                             headers=headers,
                             ssl=not isgoodipv4(urlparse(hassio_url).netloc)
                         )
