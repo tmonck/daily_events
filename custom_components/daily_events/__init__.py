@@ -57,11 +57,11 @@ async def async_setup(hass, config):
                 _LOGGER.error("Unknown exception thrown", exc_info=True)
                 await session.close()
 
-    async def async_get_events(calendars):
+    async def async_get_events(calendars, days_to_add):
         hasEvents = False
         notificationMessage = ''
         todayStart = datetime.combine(date.today(), time())
-        endDateTime = todayStart + timedelta(days=num_of_days)
+        endDateTime = todayStart + timedelta(days=days_to_add)
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
                 _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
@@ -117,6 +117,7 @@ async def async_setup(hass, config):
 
     async def async_handle_notify(call):
         # Allow the service call override the configuration.
+        days_to_add = call.data.get(ATTR_NAME, num_of_days)
         calendars = await async_get_calendars()
         _LOGGER.info('Calendars: %s', calendars) 
         # remove holidays calendar
@@ -126,7 +127,7 @@ async def async_setup(hass, config):
         
         _LOGGER.info('Calendars: %s', calendars) 
         
-        notificationMessage = await async_get_events(calendars)
+        notificationMessage = await async_get_events(calendars, days_to_add)
         _LOGGER.info("Message to send: {}".format(notificationMessage))
 
         await hass.services.async_call('notify', 'html5', {"message": notificationMessage})
