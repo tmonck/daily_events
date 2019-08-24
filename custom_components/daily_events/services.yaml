@@ -2,5 +2,5 @@ notify:
   description: Sends html5 notification with the events for all of your calendars with date range of today until the number of days you wish to see.
   fields:
     num_of_days:
-      description: Number of days you wish to see events for.
+      description: Number of days you wish to see events for the dates go from midnight today to midnight of today + num_of_days. So if you do 1 for num_of_days you will only get events for today.
       example: 3
