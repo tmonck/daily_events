@@ -34,16 +34,16 @@ async def async_setup(hass, config):
 
     async def async_get_calendars():
         _LOGGER.info('Calling get calendars')
+        _LOGGER.info("{}/calendars".format(hassio_url))
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
                 with async_timeout.timeout(10, loop=hass.loop):
-                    _LOGGER.info(hassio_url + "calendars")
                     resp = await session.get(hassio_url + 'calendars', headers=headers, ssl=not isgoodipv4(urlparse(hassio_url).netloc))
                 data = await resp.json()
                 await session.close()
                 return data
             except aiohttp.ClientError:
-                _LOGGER.error("Client error on calling get snapshots", exc_info=True)
+                _LOGGER.error("Client error on calling get calendars", exc_info=True)
                 await session.close()
             except asyncio.TimeoutError:
                 _LOGGER.error("Client timeout error on get snapshots", exc_info=True)
