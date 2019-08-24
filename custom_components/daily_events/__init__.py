@@ -60,7 +60,6 @@ async def async_setup(hass, config):
         start = todayStart.isoformat()
         endDateTime = todayStart + timedelta(days=30)
         end = endDateTime.isoformat()
-        
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
                 _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
