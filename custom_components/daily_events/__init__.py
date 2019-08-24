@@ -73,7 +73,7 @@ async def async_setup(hass, config):
                     if len(res) > 0:
                         hasEvents = True
                         _LOGGER.info("received {}".format(len(res)))
-                        notificationMessage += "{}\n".format(calendar['entity_id'])
+                        notificationMessage += "{}:\n".format(calendar['name'])
                         for item in res:
                             notificationMessage += "- {} at {}\n".format(item['summary'], item['start']['dateTime'])
                     _LOGGER.debug("current notificationMessage {}".format(notificationMessage))
