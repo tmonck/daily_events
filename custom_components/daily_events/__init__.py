@@ -27,7 +27,7 @@ CONFIG_SCHEMA = vol.Schema({
 async def async_setup(hass, config):
     _LOGGER.info('setting up daily_activities')
     conf = config[DOMAIN]
-    hassio_url = '{}/api/hassio/'.format(conf.get(CONF_HOST))
+    hassio_url = '{}/api/'.format(conf.get(CONF_HOST))
     auth_token = conf.get(CONF_TOKEN)
     headers = {'authorization': "Bearer {}".format(auth_token)}
     hasEvents = False
@@ -37,6 +37,7 @@ async def async_setup(hass, config):
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
                 with async_timeout.timeout(10, loop=hass.loop):
+                    _LOGGER.info(hassio_url + "calendars")
                     resp = await session.get(hassio_url + 'calendars', headers=headers, ssl=not isgoodipv4(urlparse(hassio_url).netloc))
                 data = await resp.json()
                 await session.close()
