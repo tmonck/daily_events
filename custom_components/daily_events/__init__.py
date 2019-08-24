@@ -85,12 +85,22 @@ async def async_setup(hass, config):
                         notificationMessage += "{}:\n".format(calendar['name'])
                         for item in res:
                             if 'dateTime' in item['start'].keys():
-                                notificationMessage += "- {} at {}\n".format(
+                                if days_to_add > 1:
+                                    parsedDate = parse(item['start']['dateTime'])
+                                    atString = "on {} at {}".format(parsedDate.strftime("%a, %b %d %Y"), parsedDate.strftime("%I:%M %p"))
+                                else:
+                                    atString = "at {}".format(parse(item['start']['dateTime']).strftime("%I:%M %p"))
+                                notificationMessage += "- {} {}\n".format(
                                     item['summary'],
-                                    parse(item['start']['dateTime']).strftime("%I:%M %p")
+                                    atString
                                 )
                             else:
-                                notificationMessage += "- {}\n".format(item['summary'])
+                                if days_to_add > 1:
+                                    parsedDate = parse(item['start']['date'])
+                                    atString = " on {}".format(parsedDate.strftime("%a, %b %d %Y"))
+                                else:
+                                    atString = ""
+                                notificationMessage += "- {}{}\n".format(item['summary'], atString)
                     _LOGGER.debug("current notificationMessage {}".format(notificationMessage))
                     
                     await session.close()
