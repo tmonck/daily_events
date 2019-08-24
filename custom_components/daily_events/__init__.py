@@ -123,7 +123,8 @@ async def async_setup(hass, config):
         _LOGGER.info('Calendars: %s', calendars) 
         notificationMessage = await async_get_events(calendars)
         _LOGGER.info("Message to send: {}".format(notificationMessage))
-        hass.services.async_call('notify', 'html5', {"message": notificationMessage})
+        await hass.services.async_call('notify', 'html5', {"message": notificationMessage})
+        _LOGGER.info("Notify was called")
 
     hass.services.async_register(DOMAIN, 'notify', async_handle_notify)
 
