@@ -127,9 +127,9 @@ async def async_setup(hass, config):
             return notificationMessage
         else:
             if days_to_add > 1:
-                future = date.today() + timedelta(days=days_to_add)
+                future = date.today() + timedelta(days=days_to_add-1)
                 return "No Activities for {} - {}".format(date.today().isoformat(), future.isoformat())
-            return "No Activities for Today {}".format(date.todday().isoformat())
+            return "No Activities for Today {}".format(date.today().isoformat())
     
     def isgoodipv4(s):
         if ':' in s: s = s.split(':')[0]
