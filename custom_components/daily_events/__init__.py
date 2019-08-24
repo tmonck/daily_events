@@ -68,7 +68,7 @@ async def async_setup(hass, config):
                 try:
                     with async_timeout.timeout(10, loop=hass.loop):
                         resp = await session.get(
-                            "{}calendars/{}?start={}}Z&end={}Z".format(hassio_url, calendar['entity_id'], start, end),
+                            "{}calendars/{}?start={}Z&end={}Z".format(hassio_url, calendar['entity_id'], start, end),
                             headers=headers,
                             ssl=not isgoodipv4(urlparse(hassio_url).netloc)
                         )
