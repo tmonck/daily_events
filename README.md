@@ -31,7 +31,7 @@ daily_events:
 ```
 
 7. Restart Home Assistant
-8. Look for the new Clean up backups service in Services.
+8. Look for the new daily_event.notify Services in services.
 
 ## Consumption in automations
 You can trigger this service in an automation similarly to the one below.
@@ -49,3 +49,5 @@ action:
       # If this property is passed to the service it will be used regardless of what you have in the configuration.yaml
       num_of_days: 2
 ```
+---
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
