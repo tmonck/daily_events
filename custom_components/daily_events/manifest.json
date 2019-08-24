@@ -1,8 +1,8 @@
 {
     "domain": "daily_events",
-    "name": "Daily Activies",
-    "documentation": "",
+    "name": "Daily events notification service",
+    "documentation": "https://github.com/tmonck/daily_events",
     "dependencies": [],
-    "codeowners": [],
+    "codeowners": ["@junja430"],
     "requirements": []
   }
