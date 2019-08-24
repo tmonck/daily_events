@@ -120,6 +120,7 @@ async def async_setup(hass, config):
         for calendar in calendars:
             if calendar['entity_id'] == 'calendar.holidays_in_united_states':
                 calendars.remove(calendar)
+        
         _LOGGER.info('Calendars: %s', calendars) 
         
         notificationMessage = await async_get_events(calendars)
