@@ -19,13 +19,19 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = 'daily_events'
 ATTR_NAME = 'num_of_days'
+ATTR_DATE_FORMAT = 'date_output_format'
+ATTR_TIME_FORMAT = 'time_output_format'
+DEFAULT_DATE_FORMAT = "%a, %b %d %Y"
+DEFAULT_TIME_FORMAT = "%I:%M %p"
 DEFAULT_NUM = 1
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_TOKEN): cv.string,
-        vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int
+        vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int,
+        vol.Optional(ATTR_DATE_FORMAT, default=DEFAULT_DATE_FORMAT): cv.string,
+        vol.Optional(ATTR_TIME_FORMAT, default=DEFAULT_TIME_FORMAT): cv.string,
     }),
 }, extra=vol.ALLOW_EXTRA)
 
@@ -36,6 +42,8 @@ async def async_setup(hass, config):
     auth_token = conf.get(CONF_TOKEN)
     headers = {'authorization': "Bearer {}".format(auth_token)}
     num_of_days = conf.get(ATTR_NAME, DEFAULT_NUM)
+    date_format = conf.get(ATTR_DATE_FORMAT, DEFAULT_DATE_FORMAT)
+    time_format = conf.get(ATTR_TIME_FORMAT, DEFAULT_TIME_FORMAT)
     hasEvents = False
 
     async def async_get_calendars():
@@ -87,9 +95,11 @@ async def async_setup(hass, config):
                             if 'dateTime' in item['start'].keys():
                                 if days_to_add > 1:
                                     parsedDate = parse(item['start']['dateTime'])
-                                    atString = "on {} at {}".format(parsedDate.strftime("%a, %b %d %Y"), parsedDate.strftime("%I:%M %p"))
+                                    atString = "on {} at {}".format(
+                                        parsedDate.strftime("{}".format(date_format)),
+                                        parsedDate.strftime("{}".format(time_format)))
                                 else:
-                                    atString = "at {}".format(parse(item['start']['dateTime']).strftime("%I:%M %p"))
+                                    atString = "at {}".format(parse(item['start']['dateTime']).strftime("{}".format(time_format)))
                                 notificationMessage += "- {} {}\n".format(
                                     item['summary'],
                                     atString
@@ -97,7 +107,7 @@ async def async_setup(hass, config):
                             else:
                                 if days_to_add > 1:
                                     parsedDate = parse(item['start']['date'])
-                                    atString = " on {}".format(parsedDate.strftime("%a, %b %d %Y"))
+                                    atString = " on {}".format(parsedDate.strftime("{}".format(date_format)))
                                 else:
                                     atString = ""
                                 notificationMessage += "- {}{}\n".format(item['summary'], atString)
@@ -115,8 +125,11 @@ async def async_setup(hass, config):
                     await session.close()
         if hasEvents:
             return notificationMessage
-        else: 
-            return "No Activities Today {}".format(date.today().isoformat())
+        else:
+            if days_to_add > 1:
+                future = date.today() + timedelta(days=days_to_add)
+                return "No Activities for {} - {}".format(date.today().isoformat(), future.isoformat())
+            return "No Activities for Today {}".format(date.todday().isoformat())
     
     def isgoodipv4(s):
         if ':' in s: s = s.split(':')[0]
