@@ -58,7 +58,8 @@ async def async_setup(hass, config):
         notificationMessage = ''
         todayStart = datetime.combine(date.today(), time())
         start = todayStart.isoformat()
-        end = start + timedelta(days=30)
+        endDateTime = start + timedelta(days=30)
+        end = endDateTime.isoformat()
         
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
