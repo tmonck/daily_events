@@ -106,7 +106,7 @@ async def async_setup(hass, config):
         if hasEvents:
             return notificationMessage
         else: 
-            return 'No Activities Today'
+            return "No Activities Today {}".format(date.today().isoformat())
     
     def isgoodipv4(s):
         if ':' in s: s = s.split(':')[0]
