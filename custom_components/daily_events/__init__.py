@@ -9,9 +9,10 @@ import json
 from urllib.parse import urlparse
 from datetime import datetime, date, time, timedelta
 from dateutil.parser import parse
+import pytz
 
 
-from homeassistant.const import (CONF_HOST, CONF_TOKEN, CONF_ENTITY_ID)
+from homeassistant.const import (CONF_HOST, CONF_TOKEN, CONF_ENTITY_ID, CONF_TIME_ZONE )
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
@@ -27,12 +28,14 @@ DEFAULT_DATE_FORMAT = "%a, %b %d %Y"
 DEFAULT_TIME_FORMAT = "%I:%M %p"
 DEFAULT_NUM = 1
 DEFAULT_NOTIFY_SERVICES = ['html5']
+DEFAULT_TIME_ZONE = 'UTC'
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_TOKEN): cv.string,
         vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int,
+        vol.Optional(CONF_TIME_ZONE, default=DEFAULT_TIME_ZONE): vol.In(pytz.all_timezones),
         vol.Optional(ATTR_DATE_FORMAT, default=DEFAULT_DATE_FORMAT): cv.string,
         vol.Optional(ATTR_TIME_FORMAT, default=DEFAULT_TIME_FORMAT): cv.string,
         vol.Optional(ATTR_EXCLUDED_CALS, default=[]): [cv.entity_id],
@@ -46,6 +49,7 @@ async def async_setup(hass, config):
     hassio_url = '{}/api/'.format(conf.get(CONF_HOST))
     auth_token = conf.get(CONF_TOKEN)
     headers = {'authorization': "Bearer {}".format(auth_token)}
+    user_defined_tz = conf.get(CONF_TIME_ZONE, DEFAULT_TIME_ZONE)
     num_of_days = conf.get(ATTR_NAME, DEFAULT_NUM)
     date_format = conf.get(ATTR_DATE_FORMAT, DEFAULT_DATE_FORMAT)
     time_format = conf.get(ATTR_TIME_FORMAT, DEFAULT_TIME_FORMAT)
@@ -75,7 +79,12 @@ async def async_setup(hass, config):
     async def async_get_events(calendars, days_to_add):
         hasEvents = False
         notificationMessage = ''
-        todayStart = datetime.combine(date.today(), time())
+        # Get current date by user defined timezone
+        todayByTz = datetime.now(pytz.timezone(user_defined_tz))
+
+        # Get current date with time of midnight and timezone offset
+        todayStart = datetime.combine(todayByTz, time()).astimezone(todayByTz.tzinfo)
+        # Get future date with time of midnight (timezone offset is included due to todayStart having astimezone)
         endDateTime = todayStart + timedelta(days=days_to_add)
         for calendar in calendars:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
@@ -84,7 +93,7 @@ async def async_setup(hass, config):
                 try:
                     with async_timeout.timeout(10, loop=hass.loop):
                         resp = await session.get(
-                            "{}calendars/{}?start={}Z&end={}Z".format(
+                            "{}calendars/{}?start={}&end={}".format(
                                 hassio_url, calendar['entity_id'],
                                 todayStart.isoformat(),
                                 endDateTime.isoformat()

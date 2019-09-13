@@ -25,6 +25,8 @@ daily_events:
   # The notification services you wish to use Defaults to html5
   notify_services:
     - html5
+  # Time zone will take any ISO 3166 timezone string that is support by pytz
+  time_zone: 'US/Pacific'
   # The date and time output formats take standard python strftime directives http://strftime.org/ defaults are the ones specified in this example
   date_output_format: "%a, %b %d %Y"
   time_output_format: "%I:%M %p"
