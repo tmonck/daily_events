@@ -109,13 +109,13 @@ async def async_setup(hass, config):
                         notificationMessage += "{}:\n".format(calendar['name'])
                         for item in res:
                             if 'dateTime' in item['start'].keys():
+                                parsedDateTime = parse(item['start']['dateTime']).astimezone(pytz.timezone(user_defined_tz))
                                 if days_to_add > 1:
-                                    parsedDate = parse(item['start']['dateTime'])
                                     atString = "on {} at {}".format(
-                                        parsedDate.strftime("{}".format(date_format)),
-                                        parsedDate.strftime("{}".format(time_format)))
+                                        parsedDateTime.strftime("{}".format(date_format)),
+                                        parsedDateTime.strftime("{}".format(time_format)))
                                 else:
-                                    atString = "at {}".format(parse(item['start']['dateTime']).strftime("{}".format(time_format)))
+                                    atString = "at {}".format(parsedDateTime.strftime("{}".format(time_format)))
                                 notificationMessage += "- {} {}\n".format(
                                     item['summary'],
                                     atString
