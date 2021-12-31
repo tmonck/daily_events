@@ -61,7 +61,7 @@ async def async_setup(hass, config):
         _LOGGER.info('Calling get calendars')
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
-                with async_timeout.timeout(10, loop=hass.loop):
+                with async_timeout.timeout(10):
                     resp = await session.get(hassio_url + 'calendars', headers=headers, ssl=not isgoodipv4(urlparse(hassio_url).netloc))
                 data = await resp.json()
                 await session.close()
@@ -91,7 +91,7 @@ async def async_setup(hass, config):
                 _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
                 # call hassio API deletion
                 try:
-                    with async_timeout.timeout(10, loop=hass.loop):
+                    with async_timeout.timeout(10):
                         resp = await session.get(
                             "{}calendars/{}?start={}&end={}".format(
                                 hassio_url, calendar['entity_id'],
