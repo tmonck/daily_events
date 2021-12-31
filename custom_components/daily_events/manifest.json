@@ -4,5 +4,6 @@
     "documentation": "https://github.com/tmonck/daily_events",
     "dependencies": [],
     "codeowners": ["@junja430"],
-    "requirements": []
+    "requirements": [],
+    "version": "0.0.1"
   }
