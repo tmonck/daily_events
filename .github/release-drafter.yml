@@ -1,0 +1,49 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+categories:
+  - type: pre-exclude
+    when:
+      label: skip-changelog
+  - title: Breaking Changes
+    semver-increment: major
+    exclusive: true
+    when:
+      label: breaking-change
+  - title: Features
+    semver-increment: minor
+    exclusive: true
+    when:
+      labels:
+        - enhancement
+        - feature
+  - title: Bug Fixes
+    semver-increment: patch
+    exclusive: true
+    when:
+      labels:
+        - bug
+        - bugfix
+        - fix
+  - title: Documentation
+    semver-increment: patch
+    exclusive: true
+    when:
+      label: documentation
+  - title: Maintenance
+    semver-increment: patch
+    exclusive: true
+    when:
+      labels:
+        - chore
+        - dependencies
+  - title: Other Changes
+    semver-increment: patch
+
+change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
+change-title-escapes: "\\<*_&"
+
+template: |
+  ## What's Changed
+
+  $CHANGES

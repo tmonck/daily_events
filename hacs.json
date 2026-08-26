@@ -1,5 +1,4 @@
 {
-    "name": "Daily Events notification service",
-    "domains": ["daily_events"],
-    "render_readme": true
+  "name": "Daily Events notification service",
+  "render_readme": true
 }

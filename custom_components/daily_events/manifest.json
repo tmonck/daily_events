@@ -1,9 +1,12 @@
 {
-    "domain": "daily_events",
-    "name": "Daily events notification service",
-    "documentation": "https://github.com/tmonck/daily_events",
-    "dependencies": [],
-    "codeowners": ["@junja430"],
-    "requirements": [],
-    "version": "0.0.1"
-  }
+  "domain": "daily_events",
+  "name": "Daily events notification service",
+  "codeowners": ["@tmonck", "@junja430"],
+  "dependencies": [],
+  "documentation": "https://github.com/tmonck/daily_events",
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/tmonck/daily_events/issues",
+  "requirements": [],
+  "version": "0.0.1"
+}
