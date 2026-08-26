@@ -1,185 +1,224 @@
-"""
-Support for automating the deletion of snapshots.
-"""
+"""Support for daily calendar event notifications."""
+
 import logging
-import asyncio
-import aiohttp
-import async_timeout
-import json
-from urllib.parse import urlparse
-from datetime import datetime, date, time, timedelta
-from dateutil.parser import parse
-import pytz
+from datetime import datetime, time, timedelta
 
-
-from homeassistant.const import (CONF_HOST, CONF_TOKEN, CONF_ENTITY_ID, CONF_TIME_ZONE )
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
+from homeassistant.components.calendar import SERVICE_GET_EVENTS
+from homeassistant.components.calendar.const import DATA_COMPONENT as CALENDAR_COMPONENT
+from homeassistant.components.calendar.const import DOMAIN as CALENDAR_DOMAIN
+from homeassistant.components.calendar.const import (
+    EVENT_END_DATETIME,
+    EVENT_START_DATETIME,
+)
+from homeassistant.const import ATTR_ENTITY_ID, CONF_HOST, CONF_TIME_ZONE, CONF_TOKEN
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.util import dt as dt_util
+
+from .const import (
+    ATTR_DATE_FORMAT,
+    ATTR_EXCLUDED_CALS,
+    ATTR_NAME,
+    ATTR_NOTIFY_SERVICES,
+    ATTR_TIME_FORMAT,
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_NOTIFY_SERVICES,
+    DEFAULT_NUM,
+    DEFAULT_TIME_FORMAT,
+    DOMAIN,
+    SERVICE_NOTIFY,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = 'daily_events'
-ATTR_NAME = 'num_of_days'
-ATTR_DATE_FORMAT = 'date_output_format'
-ATTR_TIME_FORMAT = 'time_output_format'
-ATTR_EXCLUDED_CALS = 'excluded_calendars'
-ATTR_NOTIFY_SERVICES = 'notify_services'
-DEFAULT_DATE_FORMAT = "%a, %b %d %Y"
-DEFAULT_TIME_FORMAT = "%I:%M %p"
-DEFAULT_NUM = 1
-DEFAULT_NOTIFY_SERVICES = ['html5']
-DEFAULT_TIME_ZONE = 'UTC'
+CONFIG_SCHEMA = vol.Schema(
+    {
+        DOMAIN: vol.Schema(
+            {
+                vol.Optional(CONF_HOST): cv.string,
+                vol.Optional(CONF_TOKEN): cv.string,
+                vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int,
+                vol.Optional(CONF_TIME_ZONE): cv.time_zone,
+                vol.Optional(ATTR_DATE_FORMAT, default=DEFAULT_DATE_FORMAT): cv.string,
+                vol.Optional(ATTR_TIME_FORMAT, default=DEFAULT_TIME_FORMAT): cv.string,
+                vol.Optional(ATTR_EXCLUDED_CALS, default=[]): [cv.entity_id],
+                vol.Optional(ATTR_NOTIFY_SERVICES, default=DEFAULT_NOTIFY_SERVICES): [
+                    cv.string
+                ],
+            }
+        ),
+    },
+    extra=vol.ALLOW_EXTRA,
+)
 
-CONFIG_SCHEMA = vol.Schema({
-    DOMAIN: vol.Schema({
-        vol.Required(CONF_HOST): cv.string,
-        vol.Required(CONF_TOKEN): cv.string,
-        vol.Optional(ATTR_NAME, default=DEFAULT_NUM): int,
-        vol.Optional(CONF_TIME_ZONE, default=DEFAULT_TIME_ZONE): vol.In(pytz.all_timezones),
-        vol.Optional(ATTR_DATE_FORMAT, default=DEFAULT_DATE_FORMAT): cv.string,
-        vol.Optional(ATTR_TIME_FORMAT, default=DEFAULT_TIME_FORMAT): cv.string,
-        vol.Optional(ATTR_EXCLUDED_CALS, default=[]): [cv.entity_id],
-        vol.Optional(ATTR_NOTIFY_SERVICES, default=DEFAULT_NOTIFY_SERVICES): [cv.string],
-    }),
-}, extra=vol.ALLOW_EXTRA)
 
-async def async_setup(hass, config):
-    _LOGGER.info('setting up daily_activities')
-    conf = config[DOMAIN]
-    hassio_url = '{}/api/'.format(conf.get(CONF_HOST))
-    auth_token = conf.get(CONF_TOKEN)
-    headers = {'authorization': "Bearer {}".format(auth_token)}
-    user_defined_tz = conf.get(CONF_TIME_ZONE, DEFAULT_TIME_ZONE)
-    num_of_days = conf.get(ATTR_NAME, DEFAULT_NUM)
-    date_format = conf.get(ATTR_DATE_FORMAT, DEFAULT_DATE_FORMAT)
-    time_format = conf.get(ATTR_TIME_FORMAT, DEFAULT_TIME_FORMAT)
-    excluded_calendars = conf.get(ATTR_EXCLUDED_CALS, [])
-    notify_services_to_call = conf.get(ATTR_NOTIFY_SERVICES, DEFAULT_NOTIFY_SERVICES)
-    hasEvents = False
+class DailyEventsNotifier:
+    """Build and send notifications for configured calendars."""
 
-    async def async_get_calendars():
-        _LOGGER.info('Calling get calendars')
-        async with aiohttp.ClientSession(raise_for_status=True) as session:
-            try:
-                with async_timeout.timeout(10):
-                    resp = await session.get(hassio_url + 'calendars', headers=headers, ssl=not isgoodipv4(urlparse(hassio_url).netloc))
-                data = await resp.json()
-                await session.close()
-                return data
-            except aiohttp.ClientError:
-                _LOGGER.error("Client error on calling get calendars", exc_info=True)
-                await session.close()
-            except asyncio.TimeoutError:
-                _LOGGER.error("Client timeout error on get calendars", exc_info=True)
-                await session.close()
-            except Exception: 
-                _LOGGER.error("Unknown exception thrown", exc_info=True)
-                await session.close()
+    def __init__(self, hass, config):
+        """Initialize the notifier from the YAML configuration."""
+        self.hass = hass
+        self.user_defined_tz = config.get(CONF_TIME_ZONE, hass.config.time_zone)
+        self.num_of_days = config.get(ATTR_NAME, DEFAULT_NUM)
+        self.date_format = config.get(ATTR_DATE_FORMAT, DEFAULT_DATE_FORMAT)
+        self.time_format = config.get(ATTR_TIME_FORMAT, DEFAULT_TIME_FORMAT)
+        self.excluded_calendars = config.get(ATTR_EXCLUDED_CALS, [])
+        self.notify_services = config.get(ATTR_NOTIFY_SERVICES, DEFAULT_NOTIFY_SERVICES)
 
-    async def async_get_events(calendars, days_to_add):
-        hasEvents = False
-        notificationMessage = ''
-        # Get current date by user defined timezone
-        todayByTz = datetime.now(pytz.timezone(user_defined_tz))
+    def get_calendars(self, run_id):
+        """Return the configured, available calendar entities."""
+        calendars = []
+        component = self.hass.data.get(CALENDAR_COMPONENT)
+        if component is None:
+            return calendars
 
-        # Get current date with time of midnight and timezone offset
-        todayStart = datetime.combine(todayByTz, time()).astimezone(todayByTz.tzinfo)
-        # Get future date with time of midnight (timezone offset is included due to todayStart having astimezone)
-        endDateTime = todayStart + timedelta(days=days_to_add)
+        for entity in component.entities:
+            entity_id = entity.entity_id
+            if entity_id in self.excluded_calendars:
+                continue
+            if not entity.available:
+                _LOGGER.debug(
+                    "Daily Events run %s: skipping unavailable calendar %s",
+                    run_id,
+                    entity_id,
+                )
+                continue
+            state = self.hass.states.get(entity_id)
+            if state is not None:
+                calendars.append({"entity_id": entity_id, "name": state.name})
+        return calendars
+
+    async def async_get_events(self, calendars, days_to_add, run_id):
+        """Retrieve and format events for the supplied calendars."""
+        has_events = False
+        notification_message = ""
+        timezone = dt_util.get_time_zone(self.user_defined_tz) or dt_util.UTC
+        today = dt_util.now(timezone).date()
+        today_start = datetime.combine(
+            today,
+            time.min,
+            tzinfo=timezone,
+        )
+        end_date_time = today_start + timedelta(days=days_to_add)
+
         for calendar in calendars:
-            async with aiohttp.ClientSession(raise_for_status=True) as session:
-                _LOGGER.info('Attempting to get events for calendar: calendar=%s', calendar['entity_id'])
-                # call hassio API deletion
-                try:
-                    with async_timeout.timeout(10):
-                        resp = await session.get(
-                            "{}calendars/{}?start={}&end={}".format(
-                                hassio_url, calendar['entity_id'],
-                                todayStart.isoformat(),
-                                endDateTime.isoformat()
-                            ),
-                            headers=headers,
-                            ssl=not isgoodipv4(urlparse(hassio_url).netloc)
-                        )
-                    res = await resp.json()
-                    _LOGGER.info(res)
-                    if len(res) > 0:
-                        hasEvents = True
-                        _LOGGER.info("received {}".format(len(res)))
-                        notificationMessage += "{}:\n".format(calendar['name'])
-                        for item in res:
-                            if 'dateTime' in item['start'].keys():
-                                parsedDateTime = parse(item['start']['dateTime']).astimezone(pytz.timezone(user_defined_tz))
-                                if days_to_add > 1:
-                                    atString = "on {} at {}".format(
-                                        parsedDateTime.strftime("{}".format(date_format)),
-                                        parsedDateTime.strftime("{}".format(time_format)))
-                                else:
-                                    atString = "at {}".format(parsedDateTime.strftime("{}".format(time_format)))
-                                notificationMessage += "- {} {}\n".format(
-                                    item['summary'],
-                                    atString
-                                )
-                            else:
-                                if days_to_add > 1:
-                                    parsedDate = parse(item['start']['date'])
-                                    atString = " on {}".format(parsedDate.strftime("{}".format(date_format)))
-                                else:
-                                    atString = ""
-                                notificationMessage += "- {}{}\n".format(item['summary'], atString)
-                    _LOGGER.debug("current notificationMessage {}".format(notificationMessage))
-                    
-                    await session.close()
-                except aiohttp.ClientError:
-                    _LOGGER.error("Client error on calling get events for calendar", exc_info=True)
-                    await session.close()
-                except asyncio.TimeoutError:
-                    _LOGGER.error("Client timeout error on get events for calendar", exc_info=True)
-                    await session.close()
-                except Exception: 
-                    _LOGGER.error("Unknown exception thrown on calling get events for calendar", exc_info=True)
-                    await session.close()
-        if hasEvents:
-            return notificationMessage
-        else:
-            if days_to_add > 1:
-                future = date.today() + timedelta(days=days_to_add-1)
-                return "No Activities for {} - {}".format(date.today().isoformat(), future.isoformat())
-            return "No Activities for Today {}".format(date.today().isoformat())
-    
-    def isgoodipv4(s):
-        if ':' in s: s = s.split(':')[0]
-        pieces = s.split('.')
-        if len(pieces) != 4: return False
-        try: return all(0<=int(p)<256 for p in pieces)
-        except ValueError: return False
+            entity_id = calendar["entity_id"]
+            _LOGGER.debug(
+                "Daily Events run %s: getting events for %s", run_id, entity_id
+            )
+            try:
+                response = await self.hass.services.async_call(
+                    CALENDAR_DOMAIN,
+                    SERVICE_GET_EVENTS,
+                    {
+                        ATTR_ENTITY_ID: entity_id,
+                        EVENT_START_DATETIME: today_start,
+                        EVENT_END_DATETIME: end_date_time,
+                    },
+                    blocking=True,
+                    return_response=True,
+                )
+            except HomeAssistantError:
+                _LOGGER.exception(
+                    "Daily Events run %s: error getting events for %s",
+                    run_id,
+                    entity_id,
+                )
+                continue
 
-    async def async_handle_notify(call):
-        # Allow the service call override the configuration.
-        days_to_add = call.data.get(ATTR_NAME, num_of_days)
-        
-        # Set days to add to 1 if days_to_add is 0
+            events = response.get(entity_id, {}).get("events", [])
+            if not events:
+                continue
+
+            has_events = True
+            notification_message += "{}:\n".format(calendar["name"])
+            for item in events:
+                event_start = item["start"]
+                if len(event_start) > 10:
+                    parsed_date_time = dt_util.parse_datetime(event_start)
+                    if parsed_date_time is None:
+                        _LOGGER.warning(
+                            "Daily Events run %s: skipping event with invalid start time: %s",
+                            run_id,
+                            event_start,
+                        )
+                        continue
+                    parsed_date_time = parsed_date_time.astimezone(timezone)
+                    if days_to_add > 1:
+                        at_string = "on {} at {}".format(
+                            parsed_date_time.strftime(self.date_format),
+                            parsed_date_time.strftime(self.time_format),
+                        )
+                    else:
+                        at_string = "at {}".format(
+                            parsed_date_time.strftime(self.time_format)
+                        )
+                    notification_message += "- {} {}\n".format(
+                        item["summary"], at_string
+                    )
+                else:
+                    parsed_date = dt_util.parse_date(event_start)
+                    if parsed_date is None:
+                        _LOGGER.warning(
+                            "Daily Events run %s: skipping event with invalid start date: %s",
+                            run_id,
+                            event_start,
+                        )
+                        continue
+                    if days_to_add > 1:
+                        at_string = " on {}".format(
+                            parsed_date.strftime(self.date_format)
+                        )
+                    else:
+                        at_string = ""
+                    notification_message += "- {}{}\n".format(
+                        item["summary"], at_string
+                    )
+
+        if has_events:
+            return notification_message
+        if days_to_add > 1:
+            future = today + timedelta(days=days_to_add - 1)
+            return "No Activities for {} - {}".format(
+                today.isoformat(), future.isoformat()
+            )
+        return "No Activities for Today {}".format(today.isoformat())
+
+    async def async_handle_notify(self, call):
+        """Handle the daily events notify action."""
+        run_id = call.context.id
+        days_to_add = call.data.get(ATTR_NAME, self.num_of_days)
         if days_to_add == 0:
             days_to_add = DEFAULT_NUM
-        
-        calendars = await async_get_calendars()
-        _LOGGER.info('Calendars: %s', calendars) 
-        # remove holidays calendar
-        for calendar in calendars:
-            _LOGGER.info("{}".format(excluded_calendars))
-            if calendar['entity_id'] in excluded_calendars:
-                calendars.remove(calendar)
-        
-        _LOGGER.info('Calendars: %s', calendars) 
-        
-        notificationMessage = await async_get_events(calendars, days_to_add)
-        _LOGGER.info("Message to send: {}".format(notificationMessage))
 
-        for service in notify_services_to_call:
-            await hass.services.async_call('notify', service, {"message": notificationMessage})
-            _LOGGER.info("notify.{} was called".format(service))
-        _LOGGER.info("notify calls completed")
+        _LOGGER.info("Daily Events run %s started", run_id)
+        calendars = self.get_calendars(run_id)
+        _LOGGER.debug(
+            "Daily Events run %s: selected calendars: %s",
+            run_id,
+            [calendar["entity_id"] for calendar in calendars],
+        )
+        notification_message = await self.async_get_events(
+            calendars, days_to_add, run_id
+        )
+        _LOGGER.debug(
+            "Daily Events run %s: message to send: %s",
+            run_id,
+            notification_message,
+        )
 
-    hass.services.async_register(DOMAIN, 'notify', async_handle_notify)
+        for service in self.notify_services:
+            await self.hass.services.async_call(
+                "notify", service, {"message": notification_message}
+            )
+            _LOGGER.debug("Daily Events run %s: notify.%s was called", run_id, service)
+        _LOGGER.info("Daily Events run %s completed", run_id)
 
+
+async def async_setup(hass, config):
+    """Set up Daily Events from YAML."""
+    _LOGGER.info("Setting up daily_events")
+    notifier = DailyEventsNotifier(hass, config[DOMAIN])
+    hass.services.async_register(DOMAIN, SERVICE_NOTIFY, notifier.async_handle_notify)
     return True
