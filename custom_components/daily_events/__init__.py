@@ -321,6 +321,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     )
 
     if DOMAIN in config:
+        _LOGGER.info("Importing legacy YAML configuration into a Daily Events profile")
         hass.async_create_task(
             hass.config_entries.flow.async_init(
                 DOMAIN,
@@ -333,19 +334,23 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a Daily Events profile."""
+    _LOGGER.info("Setting up Daily Events profile %s (%s)", entry.title, entry.entry_id)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = DailyEventsNotifier(
         hass, entry.entry_id, entry.title, dict(entry.options)
     )
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+    _LOGGER.info("Daily Events profile %s is active", entry.title)
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a Daily Events profile."""
+    _LOGGER.info("Unloading Daily Events profile %s (%s)", entry.title, entry.entry_id)
     hass.data[DOMAIN].pop(entry.entry_id, None)
     return True
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload a profile after its options change."""
+    _LOGGER.info("Reloading Daily Events profile %s after options update", entry.title)
     await hass.config_entries.async_reload(entry.entry_id)
