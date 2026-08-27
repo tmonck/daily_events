@@ -75,6 +75,12 @@
           "edit_destination": "Edit destination",
           "remove_destination": "Remove destination",
           "finish": "Finish"
+        },
+        "menu_option_descriptions": {
+          "add_destination": "Add another notification destination.",
+          "edit_destination": "Change an existing notification destination.",
+          "remove_destination": "Remove an existing notification destination.",
+          "finish": "Save the profile with these notification destinations."
         }
       },
       "add_destination": {
@@ -143,6 +149,12 @@
           "edit_destination": "Edit destination",
           "remove_destination": "Remove destination",
           "finish": "Finish"
+        },
+        "menu_option_descriptions": {
+          "add_destination": "Add another notification destination.",
+          "edit_destination": "Change an existing notification destination.",
+          "remove_destination": "Remove an existing notification destination.",
+          "finish": "Save the profile with these notification destinations."
         }
       },
       "add_destination": {
