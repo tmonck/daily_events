@@ -11,6 +11,16 @@
       "invalid_time_zone": "Enter a valid timezone.",
       "required": "This field is required."
     },
+    "user": {
+      "title": "Profile settings",
+      "data": {
+        "name": "Profile name",
+        "days": "Number of days",
+        "time_zone": "Timezone",
+        "date_format": "Date format",
+        "time_format": "Time format"
+      }
+    },
     "step": {
       "profile": {
         "title": "Profile settings",
