@@ -39,6 +39,11 @@
               "time_zone": "Timezone",
               "date_format": "Date format",
               "time_format": "Time format"
+            },
+            "data_description": {
+              "time_zone": "Timezone used when formatting event times.",
+              "date_format": "strftime format used for event dates.",
+              "time_format": "strftime format used for event times."
             }
           }
         }
@@ -70,6 +75,11 @@
               "time_zone": "Timezone",
               "date_format": "Date format",
               "time_format": "Time format"
+            },
+            "data_description": {
+              "time_zone": "Timezone used when formatting event times.",
+              "date_format": "strftime format used for event dates.",
+              "time_format": "strftime format used for event times."
             }
           }
         }
@@ -167,6 +177,22 @@
           "time_zone": "Timezone used when formatting event times.",
           "date_format": "strftime format used for event dates.",
           "time_format": "strftime format used for event times."
+        },
+        "sections": {
+          "formatting": {
+            "name": "Formatting",
+            "description": "Override the timezone and date/time formats used by this profile.",
+            "data": {
+              "time_zone": "Timezone",
+              "date_format": "Date format",
+              "time_format": "Time format"
+            },
+            "data_description": {
+              "time_zone": "Timezone used when formatting event times.",
+              "date_format": "strftime format used for event dates.",
+              "time_format": "strftime format used for event times."
+            }
+          }
         }
       },
       "calendar_mode": {
