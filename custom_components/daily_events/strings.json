@@ -22,6 +22,9 @@
           "time_zone": "Timezone",
           "date_format": "Date format",
           "time_format": "Time format"
+        },
+        "data_description": {
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page."
         }
       },
       "profile": {
@@ -34,6 +37,9 @@
           "time_zone": "Timezone",
           "date_format": "Date format",
           "time_format": "Time format"
+        },
+        "data_description": {
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page."
         }
       },
       "calendar_mode": {
@@ -96,9 +102,13 @@
         "data": {
           "name": "Profile name",
           "days": "Number of days",
+          "calendar_mode": "Calendar mode",
           "time_zone": "Timezone",
           "date_format": "Date format",
           "time_format": "Time format"
+        },
+        "data_description": {
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page."
         }
       },
       "calendar_mode": {
