@@ -237,7 +237,9 @@ class _ProfileFlowMixin:
                 mode=selector.SelectSelectorMode.DROPDOWN,
             )
         )
-        suggested_action = None
+        suggested_action = (
+            NOTIFY_SEND_MESSAGE if NOTIFY_SEND_MESSAGE in actions else None
+        )
         if self._editing_destination is not None:
             suggested_action = self._destinations[self._editing_destination][
                 CONF_ACTION
