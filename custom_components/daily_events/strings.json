@@ -14,7 +14,7 @@
     "step": {
       "user": {
         "title": "Profile settings",
-        "description": "Configure a Daily Events notification profile.",
+        "description": "Choose the profile settings and calendar mode. All includes every calendar. Include uses only the calendars selected next, and exclude uses every calendar except those selected next. Notification destinations are configured in the following steps.",
         "data": {
           "name": "Profile name",
           "days": "Number of days",

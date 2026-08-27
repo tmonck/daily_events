@@ -72,6 +72,7 @@ class _ProfileFlowMixin:
     _destinations: list[dict[str, Any]]
     _pending_action: str | None
     _editing_destination: int | None
+    _profile_step_id: str
 
     def _profile_schema(self) -> vol.Schema:
         """Return the profile settings schema with current values."""
@@ -127,7 +128,7 @@ class _ProfileFlowMixin:
                 return await self.async_step_calendars()
 
         return self.async_show_form(
-            step_id="profile",
+            step_id=self._profile_step_id,
             data_schema=self._profile_schema(),
             errors=errors,
         )
@@ -363,6 +364,7 @@ class DailyEventsConfigFlow(
         self._destinations = []
         self._pending_action = None
         self._editing_destination = None
+        self._profile_step_id = "user"
 
     @staticmethod
     @callback
@@ -425,6 +427,7 @@ class DailyEventsOptionsFlow(_ProfileFlowMixin, config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Initialize profile editing."""
+        self._profile_step_id = "profile"
         self._profile_name = self.config_entry.title
         self._profile = dict(self.config_entry.options)
         self._destinations = deepcopy(
