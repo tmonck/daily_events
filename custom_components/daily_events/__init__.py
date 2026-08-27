@@ -255,14 +255,23 @@ class DailyEventsNotifier:
         for destination in self.notification_destinations:
             action = destination[CONF_ACTION]
             domain, service = action.split(".", 1)
-            await self.hass.services.async_call(
-                domain,
-                service,
-                {"message": notification_message},
-                target=destination.get(CONF_TARGET),
-                blocking=True,
-                context=call.context,
-            )
+            try:
+                await self.hass.services.async_call(
+                    domain,
+                    service,
+                    {"message": notification_message},
+                    target=destination.get(CONF_TARGET),
+                    blocking=True,
+                    context=call.context,
+                )
+            except HomeAssistantError:
+                _LOGGER.exception(
+                    "Daily Events run %s profile %s: failed to call %s",
+                    run_id,
+                    self.entry_id,
+                    action,
+                )
+                continue
             _LOGGER.debug(
                 "Daily Events run %s profile %s: %s was called",
                 run_id,
@@ -311,12 +320,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         schema=SERVICE_NOTIFY_SCHEMA,
     )
 
-    if yaml_config := config.get(DOMAIN):
+    if DOMAIN in config:
         hass.async_create_task(
             hass.config_entries.flow.async_init(
                 DOMAIN,
                 context={"source": config_entries.SOURCE_IMPORT},
-                data=yaml_config,
+                data=config[DOMAIN],
             )
         )
     return True
