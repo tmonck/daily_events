@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import Any
+from zoneinfo import available_timezones
 
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry, ConfigFlowResult
 from homeassistant.const import ATTR_ENTITY_ID, CONF_NAME, CONF_TIME_ZONE
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import section
 from homeassistant.helpers import selector
 from homeassistant.util import dt as dt_util
 
@@ -39,9 +41,16 @@ from .const import (
 
 CONF_DESTINATION = "destination"
 CONF_DESTINATION_INDEX = "destination_index"
+CONF_FORMATTING = "formatting"
 YAML_IMPORT_ID = "yaml_import"
 
 TEXT_SELECTOR = selector.TextSelector(selector.TextSelectorConfig())
+TIME_ZONE_SELECTOR = selector.SelectSelector(
+    selector.SelectSelectorConfig(
+        options=sorted(available_timezones()),
+        mode=selector.SelectSelectorMode.DROPDOWN,
+    )
+)
 DAYS_SELECTOR = selector.NumberSelector(
     selector.NumberSelectorConfig(
         min=1,
@@ -76,14 +85,21 @@ class _ProfileFlowMixin:
 
     def _profile_schema(self) -> vol.Schema:
         """Return the profile settings schema with current values."""
+        formatting_schema = vol.Schema(
+            {
+                vol.Optional(CONF_TIME_ZONE): TIME_ZONE_SELECTOR,
+                vol.Required(CONF_DATE_FORMAT): TEXT_SELECTOR,
+                vol.Required(CONF_TIME_FORMAT): TEXT_SELECTOR,
+            }
+        )
         schema = vol.Schema(
             {
                 vol.Required(CONF_NAME): TEXT_SELECTOR,
                 vol.Required(CONF_DAYS): DAYS_SELECTOR,
                 vol.Required(CONF_CALENDAR_MODE): CALENDAR_MODE_SELECTOR,
-                vol.Optional(CONF_TIME_ZONE): TEXT_SELECTOR,
-                vol.Required(CONF_DATE_FORMAT): TEXT_SELECTOR,
-                vol.Required(CONF_TIME_FORMAT): TEXT_SELECTOR,
+                vol.Required(CONF_FORMATTING): section(
+                    formatting_schema, {"collapsed": True}
+                ),
             }
         )
         values = {
@@ -92,11 +108,17 @@ class _ProfileFlowMixin:
             CONF_CALENDAR_MODE: self._profile.get(
                 CONF_CALENDAR_MODE, CalendarMode.ALL.value
             ),
-            CONF_DATE_FORMAT: self._profile.get(CONF_DATE_FORMAT, DEFAULT_DATE_FORMAT),
-            CONF_TIME_FORMAT: self._profile.get(CONF_TIME_FORMAT, DEFAULT_TIME_FORMAT),
+            CONF_FORMATTING: {
+                CONF_DATE_FORMAT: self._profile.get(
+                    CONF_DATE_FORMAT, DEFAULT_DATE_FORMAT
+                ),
+                CONF_TIME_FORMAT: self._profile.get(
+                    CONF_TIME_FORMAT, DEFAULT_TIME_FORMAT
+                ),
+            },
         }
         if time_zone := self._profile.get(CONF_TIME_ZONE):
-            values[CONF_TIME_ZONE] = time_zone
+            values[CONF_FORMATTING][CONF_TIME_ZONE] = time_zone
         return self.add_suggested_values_to_schema(schema, values)
 
     async def async_step_profile(
@@ -108,14 +130,15 @@ class _ProfileFlowMixin:
             profile_name = user_input[CONF_NAME].strip()
             if not profile_name:
                 errors[CONF_NAME] = "required"
-            time_zone = user_input.get(CONF_TIME_ZONE)
+            formatting = user_input[CONF_FORMATTING]
+            time_zone = formatting.get(CONF_TIME_ZONE)
             if time_zone and dt_util.get_time_zone(time_zone) is None:
                 errors[CONF_TIME_ZONE] = "invalid_time_zone"
             if not errors:
                 self._profile_name = profile_name
                 self._profile[CONF_DAYS] = int(user_input[CONF_DAYS])
-                self._profile[CONF_DATE_FORMAT] = user_input[CONF_DATE_FORMAT]
-                self._profile[CONF_TIME_FORMAT] = user_input[CONF_TIME_FORMAT]
+                self._profile[CONF_DATE_FORMAT] = formatting[CONF_DATE_FORMAT]
+                self._profile[CONF_TIME_FORMAT] = formatting[CONF_TIME_FORMAT]
                 mode = CalendarMode(user_input[CONF_CALENDAR_MODE])
                 self._profile[CONF_CALENDAR_MODE] = mode.value
                 if time_zone:
