@@ -9,31 +9,9 @@ calendar entities.
 2. Add this repository as a custom repository.
 3. Install the integration.
 4. Restart Home Assistant.
-5. Add `daily_events` to `configuration.yaml`.
+5. Add a Daily Events profile through **Settings > Devices & services > Add integration**.
 
-```yaml
-daily_events:
-  # Optional: Number of days to include. Defaults to 1.
-  num_of_days: 1
-
-  # Optional: Calendars to exclude.
-  excluded_calendars:
-    - calendar.holidays_in_united_states
-
-  # Optional: Notification actions, without the "notify." prefix.
-  # Defaults to html5.
-  notify_services:
-    - mobile_app_toms_phone
-
-  # Optional: IANA timezone. Defaults to Home Assistant's configured timezone.
-  time_zone: America/Los_Angeles
-
-  # Optional: Python strftime formats.
-  date_output_format: "%a, %b %d %Y"
-  time_output_format: "%I:%M %p"
-```
-
-Restart Home Assistant after changing the YAML configuration. The
+Configure profiles through their config-entry options. The
 `daily_events.notify` action will then be available under Settings > Developer
 Tools > Actions.
 

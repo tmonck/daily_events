@@ -28,9 +28,26 @@ jobs:
       - name: Run pre-commit
         run: pre-commit run --all-files
 
+  test:
+    name: Tests
+    needs: pre-commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install test dependencies
+        run: |
+          python -m pip install homeassistant==2026.8.3 pytest-homeassistant-custom-component==0.13.357
+      - name: Run tests
+        run: python -m pytest -q
+
   hacs:
     name: HACS
-    needs: pre-commit
+    needs: [pre-commit, test]
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -42,7 +59,7 @@ jobs:
 
   hassfest:
     name: Hassfest
-    needs: pre-commit
+    needs: [pre-commit, test]
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

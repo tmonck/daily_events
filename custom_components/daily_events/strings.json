@@ -1,0 +1,295 @@
+{
+  "title": "Daily Events",
+  "config": {
+    "abort": {
+      "already_configured": "This profile is already configured.",
+      "no_notification_actions": "No notification actions are available."
+    },
+    "error": {
+      "at_least_one_calendar": "Select at least one calendar.",
+      "at_least_one_notify_entity": "Select at least one notification entity.",
+      "invalid_time_zone": "Enter a valid timezone.",
+      "required": "This field is required."
+    },
+    "step": {
+      "user": {
+        "title": "Profile settings",
+        "description": "Choose the profile settings and calendar mode. All includes every calendar. Include uses only the calendars selected next, and exclude uses every calendar except those selected next. Notification destinations are configured in the following steps.",
+        "data": {
+          "name": "Profile name",
+          "days": "Number of days",
+          "calendar_mode": "Calendar mode",
+          "time_zone": "Timezone",
+          "date_format": "Date format",
+          "time_format": "Time format"
+        },
+        "data_description": {
+          "name": "A name to identify this notification profile.",
+          "days": "How many days of calendar events to include.",
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page.",
+          "time_zone": "Timezone used when formatting event times.",
+          "date_format": "strftime format used for event dates.",
+          "time_format": "strftime format used for event times."
+        },
+        "sections": {
+          "formatting": {
+            "name": "Optional formatting",
+            "description": "Override the timezone and date/time formats used by this profile.",
+            "data": {
+              "time_zone": "Timezone",
+              "date_format": "Date format",
+              "time_format": "Time format"
+            },
+            "data_description": {
+              "time_zone": "Timezone used when formatting event times.",
+              "date_format": "strftime format used for event dates.",
+              "time_format": "strftime format used for event times."
+            }
+          }
+        }
+      },
+      "profile": {
+        "title": "Profile settings",
+        "description": "Choose the profile settings and calendar mode. All includes every calendar. Include uses only the calendars selected next, and exclude uses every calendar except those selected next. Notification destinations are configured in the following steps.",
+        "data": {
+          "name": "Profile name",
+          "days": "Number of days",
+          "calendar_mode": "Calendar mode",
+          "time_zone": "Timezone",
+          "date_format": "Date format",
+          "time_format": "Time format"
+        },
+        "data_description": {
+          "name": "A name to identify this notification profile.",
+          "days": "How many days of calendar events to include.",
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page.",
+          "time_zone": "Timezone used when formatting event times.",
+          "date_format": "strftime format used for event dates.",
+          "time_format": "strftime format used for event times."
+        },
+        "sections": {
+          "formatting": {
+            "name": "Optional formatting",
+            "description": "Override the timezone and date/time formats used by this profile.",
+            "data": {
+              "time_zone": "Timezone",
+              "date_format": "Date format",
+              "time_format": "Time format"
+            },
+            "data_description": {
+              "time_zone": "Timezone used when formatting event times.",
+              "date_format": "strftime format used for event dates.",
+              "time_format": "strftime format used for event times."
+            }
+          }
+        }
+      },
+      "calendar_mode": {
+        "title": "Calendar selection",
+        "description": "All includes every available calendar. Include sends events only from calendars selected on the next page. Exclude sends events from every calendar except those selected on the next page.",
+        "data": {
+          "calendar_mode": "Calendar mode"
+        }
+      },
+      "calendars": {
+        "title": "Select calendars",
+        "description": "Choose the calendars to include or exclude.",
+        "data": {
+          "calendars": "Calendars"
+        },
+        "data_description": {
+          "calendars": "Calendars to include or exclude from this profile."
+        }
+      },
+      "destination": {
+        "title": "Notification destination",
+        "data": {
+          "action": "Notification action"
+        },
+        "data_description": {
+          "action": "Notification service action that will receive the event summary."
+        }
+      },
+      "destination_target": {
+        "title": "Notification targets",
+        "data": {
+          "entity_id": "Notification entities"
+        },
+        "data_description": {
+          "entity_id": "Notification targets for the selected action."
+        }
+      },
+      "destination_menu": {
+        "title": "Notification destinations",
+        "menu_options": {
+          "add_destination": "Add destination",
+          "edit_destination": "Edit destination",
+          "remove_destination": "Remove destination",
+          "finish": "Finish"
+        },
+        "menu_option_descriptions": {
+          "add_destination": "Add another notification destination.",
+          "edit_destination": "Change an existing notification destination.",
+          "remove_destination": "Remove an existing notification destination.",
+          "finish": "Save the profile with these notification destinations."
+        }
+      },
+      "add_destination": {
+        "title": "Add destination"
+      },
+      "edit_destination": {
+        "title": "Edit destination",
+        "data": {
+          "destination_index": "Destination"
+        },
+        "data_description": {
+          "destination_index": "Select the configured destination to edit."
+        }
+      },
+      "remove_destination": {
+        "title": "Remove destination",
+        "data": {
+          "destination_index": "Destination"
+        },
+        "data_description": {
+          "destination_index": "Select the configured destination to remove."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "profile": {
+        "title": "Edit profile",
+        "description": "Choose the profile settings and calendar mode. All includes every calendar. Include uses only the calendars selected next, and exclude uses every calendar except those selected next. Notification destinations are configured in the following steps.",
+        "data": {
+          "name": "Profile name",
+          "days": "Number of days",
+          "calendar_mode": "Calendar mode",
+          "time_zone": "Timezone",
+          "date_format": "Date format",
+          "time_format": "Time format"
+        },
+        "data_description": {
+          "name": "A name to identify this notification profile.",
+          "days": "How many days of calendar events to include.",
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page.",
+          "time_zone": "Timezone used when formatting event times.",
+          "date_format": "strftime format used for event dates.",
+          "time_format": "strftime format used for event times."
+        },
+        "sections": {
+          "formatting": {
+            "name": "Optional formatting",
+            "description": "Override the timezone and date/time formats used by this profile.",
+            "data": {
+              "time_zone": "Timezone",
+              "date_format": "Date format",
+              "time_format": "Time format"
+            },
+            "data_description": {
+              "time_zone": "Timezone used when formatting event times.",
+              "date_format": "strftime format used for event dates.",
+              "time_format": "strftime format used for event times."
+            }
+          }
+        }
+      },
+      "calendar_mode": {
+        "title": "Calendar selection",
+        "description": "All includes every available calendar. Include sends events only from calendars selected on the next page. Exclude sends events from every calendar except those selected on the next page.",
+        "data": {
+          "calendar_mode": "Calendar mode"
+        }
+      },
+      "calendars": {
+        "title": "Select calendars",
+        "data": {
+          "calendars": "Calendars"
+        },
+        "data_description": {
+          "calendars": "Calendars to include or exclude from this profile."
+        }
+      },
+      "destination": {
+        "title": "Notification destination",
+        "data": {
+          "action": "Notification action"
+        },
+        "data_description": {
+          "action": "Notification service action that will receive the event summary."
+        }
+      },
+      "destination_target": {
+        "title": "Notification targets",
+        "data": {
+          "entity_id": "Notification entities"
+        },
+        "data_description": {
+          "entity_id": "Notification targets for the selected action."
+        }
+      },
+      "destination_menu": {
+        "title": "Notification destinations",
+        "menu_options": {
+          "add_destination": "Add destination",
+          "edit_destination": "Edit destination",
+          "remove_destination": "Remove destination",
+          "finish": "Finish"
+        },
+        "menu_option_descriptions": {
+          "add_destination": "Add another notification destination.",
+          "edit_destination": "Change an existing notification destination.",
+          "remove_destination": "Remove an existing notification destination.",
+          "finish": "Save the profile with these notification destinations."
+        }
+      },
+      "add_destination": {
+        "title": "Add destination"
+      },
+      "edit_destination": {
+        "title": "Edit destination",
+        "data": {
+          "destination_index": "Destination"
+        }
+      },
+      "remove_destination": {
+        "title": "Remove destination",
+        "data": {
+          "destination_index": "Destination"
+        }
+      }
+    },
+    "error": {
+      "at_least_one_calendar": "Select at least one calendar.",
+      "at_least_one_notify_entity": "Select at least one notification entity.",
+      "invalid_time_zone": "Enter a valid timezone.",
+      "required": "This field is required."
+    }
+  },
+  "selector": {
+    "calendar_mode": {
+      "options": {
+        "all": "All calendars",
+        "include": "Only selected calendars",
+        "exclude": "All except selected calendars"
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Send daily events",
+      "description": "Send calendar events using a Daily Events profile.",
+      "fields": {
+        "profile": {
+          "name": "Profile",
+          "description": "Run only this profile. If omitted, run all profiles."
+        },
+        "num_of_days": {
+          "name": "Number of days",
+          "description": "Override the profile's number of days for this run."
+        }
+      }
+    }
+  }
+}
