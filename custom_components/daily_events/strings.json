@@ -1,0 +1,169 @@
+{
+  "title": "Daily Events",
+  "config": {
+    "abort": {
+      "already_configured": "This profile is already configured.",
+      "no_notification_actions": "No notification actions are available."
+    },
+    "error": {
+      "at_least_one_calendar": "Select at least one calendar.",
+      "at_least_one_notify_entity": "Select at least one notification entity.",
+      "invalid_time_zone": "Enter a valid timezone.",
+      "required": "This field is required."
+    },
+    "step": {
+      "profile": {
+        "title": "Profile settings",
+        "data": {
+          "name": "Profile name",
+          "days": "Number of days",
+          "time_zone": "Timezone",
+          "date_format": "Date format",
+          "time_format": "Time format"
+        }
+      },
+      "calendar_mode": {
+        "title": "Calendar selection",
+        "data": {
+          "calendar_mode": "Calendar mode"
+        }
+      },
+      "calendars": {
+        "title": "Select calendars",
+        "description": "Choose the calendars to include or exclude.",
+        "data": {
+          "calendars": "Calendars"
+        }
+      },
+      "destination": {
+        "title": "Notification destination",
+        "data": {
+          "action": "Notification action"
+        }
+      },
+      "destination_target": {
+        "title": "Notification targets",
+        "data": {
+          "entity_id": "Notification entities"
+        }
+      },
+      "destination_menu": {
+        "title": "Notification destinations",
+        "menu_options": {
+          "add_destination": "Add destination",
+          "edit_destination": "Edit destination",
+          "remove_destination": "Remove destination",
+          "finish": "Finish"
+        }
+      },
+      "add_destination": {
+        "title": "Add destination"
+      },
+      "edit_destination": {
+        "title": "Edit destination",
+        "data": {
+          "destination_index": "Destination"
+        }
+      },
+      "remove_destination": {
+        "title": "Remove destination",
+        "data": {
+          "destination_index": "Destination"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "profile": {
+        "title": "Edit profile",
+        "data": {
+          "name": "Profile name",
+          "days": "Number of days",
+          "time_zone": "Timezone",
+          "date_format": "Date format",
+          "time_format": "Time format"
+        }
+      },
+      "calendar_mode": {
+        "title": "Calendar selection",
+        "data": {
+          "calendar_mode": "Calendar mode"
+        }
+      },
+      "calendars": {
+        "title": "Select calendars",
+        "data": {
+          "calendars": "Calendars"
+        }
+      },
+      "destination": {
+        "title": "Notification destination",
+        "data": {
+          "action": "Notification action"
+        }
+      },
+      "destination_target": {
+        "title": "Notification targets",
+        "data": {
+          "entity_id": "Notification entities"
+        }
+      },
+      "destination_menu": {
+        "title": "Notification destinations",
+        "menu_options": {
+          "add_destination": "Add destination",
+          "edit_destination": "Edit destination",
+          "remove_destination": "Remove destination",
+          "finish": "Finish"
+        }
+      },
+      "add_destination": {
+        "title": "Add destination"
+      },
+      "edit_destination": {
+        "title": "Edit destination",
+        "data": {
+          "destination_index": "Destination"
+        }
+      },
+      "remove_destination": {
+        "title": "Remove destination",
+        "data": {
+          "destination_index": "Destination"
+        }
+      }
+    },
+    "error": {
+      "at_least_one_calendar": "Select at least one calendar.",
+      "at_least_one_notify_entity": "Select at least one notification entity.",
+      "invalid_time_zone": "Enter a valid timezone.",
+      "required": "This field is required."
+    }
+  },
+  "selector": {
+    "calendar_mode": {
+      "options": {
+        "all": "All calendars",
+        "include": "Only selected calendars",
+        "exclude": "All except selected calendars"
+      }
+    }
+  },
+  "services": {
+    "notify": {
+      "name": "Send daily events",
+      "description": "Send calendar events using a Daily Events profile.",
+      "fields": {
+        "profile": {
+          "name": "Profile",
+          "description": "Run only this profile. If omitted, run all profiles."
+        },
+        "num_of_days": {
+          "name": "Number of days",
+          "description": "Override the profile's number of days for this run."
+        }
+      }
+    }
+  }
+}
