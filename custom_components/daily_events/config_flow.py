@@ -286,14 +286,17 @@ class _ProfileFlowMixin:
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Manage notification destinations."""
+        destination_summary = ", ".join(
+            destination[CONF_ACTION] for destination in self._destinations
+        )
         return self.async_show_menu(
             step_id="destination_menu",
-            menu_options=[
-                "add_destination",
-                "edit_destination",
-                "remove_destination",
-                "finish",
-            ],
+            menu_options={
+                "add_destination": "Add destination",
+                "edit_destination": f"Edit destinations ({destination_summary})",
+                "remove_destination": f"Remove destinations ({destination_summary})",
+                "finish": "Finish",
+            },
         )
 
     async def async_step_add_destination(
