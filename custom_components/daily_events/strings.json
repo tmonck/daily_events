@@ -24,7 +24,12 @@
           "time_format": "Time format"
         },
         "data_description": {
-          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page."
+          "name": "A name to identify this notification profile.",
+          "days": "How many days of calendar events to include.",
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page.",
+          "time_zone": "Timezone used when formatting event times.",
+          "date_format": "strftime format used for event dates.",
+          "time_format": "strftime format used for event times."
         }
       },
       "profile": {
@@ -39,7 +44,12 @@
           "time_format": "Time format"
         },
         "data_description": {
-          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page."
+          "name": "A name to identify this notification profile.",
+          "days": "How many days of calendar events to include.",
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page.",
+          "time_zone": "Timezone used when formatting event times.",
+          "date_format": "strftime format used for event dates.",
+          "time_format": "strftime format used for event times."
         }
       },
       "calendar_mode": {
@@ -54,18 +64,27 @@
         "description": "Choose the calendars to include or exclude.",
         "data": {
           "calendars": "Calendars"
+        },
+        "data_description": {
+          "calendars": "Calendars to include or exclude from this profile."
         }
       },
       "destination": {
         "title": "Notification destination",
         "data": {
           "action": "Notification action"
+        },
+        "data_description": {
+          "action": "Notification service action that will receive the event summary."
         }
       },
       "destination_target": {
         "title": "Notification targets",
         "data": {
           "entity_id": "Notification entities"
+        },
+        "data_description": {
+          "entity_id": "Notification targets for the selected action."
         }
       },
       "destination_menu": {
@@ -90,12 +109,18 @@
         "title": "Edit destination",
         "data": {
           "destination_index": "Destination"
+        },
+        "data_description": {
+          "destination_index": "Select the configured destination to edit."
         }
       },
       "remove_destination": {
         "title": "Remove destination",
         "data": {
           "destination_index": "Destination"
+        },
+        "data_description": {
+          "destination_index": "Select the configured destination to remove."
         }
       }
     }
@@ -114,7 +139,12 @@
           "time_format": "Time format"
         },
         "data_description": {
-          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page."
+          "name": "A name to identify this notification profile.",
+          "days": "How many days of calendar events to include.",
+          "calendar_mode": "All includes every available calendar. Include uses only calendars selected on the next page. Exclude uses every calendar except those selected on the next page.",
+          "time_zone": "Timezone used when formatting event times.",
+          "date_format": "strftime format used for event dates.",
+          "time_format": "strftime format used for event times."
         }
       },
       "calendar_mode": {
@@ -128,18 +158,27 @@
         "title": "Select calendars",
         "data": {
           "calendars": "Calendars"
+        },
+        "data_description": {
+          "calendars": "Calendars to include or exclude from this profile."
         }
       },
       "destination": {
         "title": "Notification destination",
         "data": {
           "action": "Notification action"
+        },
+        "data_description": {
+          "action": "Notification service action that will receive the event summary."
         }
       },
       "destination_target": {
         "title": "Notification targets",
         "data": {
           "entity_id": "Notification entities"
+        },
+        "data_description": {
+          "entity_id": "Notification targets for the selected action."
         }
       },
       "destination_menu": {
