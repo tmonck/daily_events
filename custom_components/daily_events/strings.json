@@ -18,6 +18,7 @@
         "data": {
           "name": "Profile name",
           "days": "Number of days",
+          "calendar_mode": "Calendar mode",
           "time_zone": "Timezone",
           "date_format": "Date format",
           "time_format": "Time format"
@@ -28,6 +29,7 @@
         "data": {
           "name": "Profile name",
           "days": "Number of days",
+          "calendar_mode": "Calendar mode",
           "time_zone": "Timezone",
           "date_format": "Date format",
           "time_format": "Time format"

@@ -79,6 +79,7 @@ class _ProfileFlowMixin:
             {
                 vol.Required(CONF_NAME): TEXT_SELECTOR,
                 vol.Required(CONF_DAYS): DAYS_SELECTOR,
+                vol.Required(CONF_CALENDAR_MODE): CALENDAR_MODE_SELECTOR,
                 vol.Optional(CONF_TIME_ZONE): TEXT_SELECTOR,
                 vol.Required(CONF_DATE_FORMAT): TEXT_SELECTOR,
                 vol.Required(CONF_TIME_FORMAT): TEXT_SELECTOR,
@@ -87,6 +88,9 @@ class _ProfileFlowMixin:
         values = {
             CONF_NAME: self._profile_name,
             CONF_DAYS: self._profile.get(CONF_DAYS, DEFAULT_NUM),
+            CONF_CALENDAR_MODE: self._profile.get(
+                CONF_CALENDAR_MODE, CalendarMode.ALL.value
+            ),
             CONF_DATE_FORMAT: self._profile.get(CONF_DATE_FORMAT, DEFAULT_DATE_FORMAT),
             CONF_TIME_FORMAT: self._profile.get(CONF_TIME_FORMAT, DEFAULT_TIME_FORMAT),
         }
@@ -111,11 +115,16 @@ class _ProfileFlowMixin:
                 self._profile[CONF_DAYS] = int(user_input[CONF_DAYS])
                 self._profile[CONF_DATE_FORMAT] = user_input[CONF_DATE_FORMAT]
                 self._profile[CONF_TIME_FORMAT] = user_input[CONF_TIME_FORMAT]
+                mode = CalendarMode(user_input[CONF_CALENDAR_MODE])
+                self._profile[CONF_CALENDAR_MODE] = mode.value
                 if time_zone:
                     self._profile[CONF_TIME_ZONE] = time_zone
                 else:
                     self._profile.pop(CONF_TIME_ZONE, None)
-                return await self.async_step_calendar_mode()
+                if mode is CalendarMode.ALL:
+                    self._profile[CONF_CALENDARS] = []
+                    return await self._async_after_calendars()
+                return await self.async_step_calendars()
 
         return self.async_show_form(
             step_id="profile",
