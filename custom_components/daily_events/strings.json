@@ -33,7 +33,7 @@
         },
         "sections": {
           "formatting": {
-            "name": "Optional formatting",
+            "name": "Formatting",
             "description": "Override the timezone and date/time formats used by this profile.",
             "data": {
               "time_zone": "Timezone",
@@ -64,7 +64,7 @@
         },
         "sections": {
           "formatting": {
-            "name": "Optional formatting",
+            "name": "Formatting",
             "description": "Override the timezone and date/time formats used by this profile.",
             "data": {
               "time_zone": "Timezone",
