@@ -38,6 +38,7 @@
       },
       "calendar_mode": {
         "title": "Calendar selection",
+        "description": "All includes every available calendar. Include sends events only from calendars selected on the next page. Exclude sends events from every calendar except those selected on the next page.",
         "data": {
           "calendar_mode": "Calendar mode"
         }
@@ -102,6 +103,7 @@
       },
       "calendar_mode": {
         "title": "Calendar selection",
+        "description": "All includes every available calendar. Include sends events only from calendars selected on the next page. Exclude sends events from every calendar except those selected on the next page.",
         "data": {
           "calendar_mode": "Calendar mode"
         }
